@@ -1,1 +1,336 @@
-
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+<title>resona. · Dialektika Peta Batin</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; } 
+  :root {
+    --neon-magenta: #ff00cc;
+    --neon-green: #00ff88;
+    --neon-purple: #aa00ff;
+    --neon-cyan: #00eeff;
+    --deep-bg: #050508;
+    --card-bg: rgba(20,10,35,0.8);
+    --glass-border: rgba(170,0,255,0.25);
+  } 
+  body {
+    background: var(--deep-bg);
+    background-image:
+      radial-gradient(ellipse 80% 50% at 20% 0%, rgba(170,0,255,0.15) 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(255,0,204,0.1) 0%, transparent 60%);
+    min-height: 100vh;
+    font-family: 'Segoe UI', 'Inter', system-ui, sans-serif;
+    color: #f0f0f0;
+    overflow-x: hidden;
+    -webkit-tap-highlight-color: transparent;
+  } 
+  .grid-bg { position: fixed; inset: 0; background-image: linear-gradient(rgba(170,0,255,0.035) 1px, transparent 1px), linear-gradient(90deg, rgba(170,0,255,0.035) 1px, transparent 1px); background-size: 40px 40px; pointer-events: none; z-index: 0; } 
+  .scan-line { position: fixed; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, transparent, rgba(255,0,204,0.5), transparent); animation: scanDown 4s linear infinite; pointer-events: none; z-index: 9999; top: 0; }
+  @keyframes scanDown { 0%{top:0%} 100%{top:100%} } 
+  .screen { display: none; padding: 2rem 1.25rem; }
+  .screen.active { display: flex; flex-direction: column; min-height: 100vh; position: relative; z-index: 1; } 
+  #screen-home { align-items: center; justify-content: center; text-align: center; } 
+  .orbit-wrapper { position: relative; width: 120px; height: 120px; margin: 0 auto 1.5rem; animation: floatUD 3s ease-in-out infinite; }
+  @keyframes floatUD { 0%,100%{transform:translateY(0)} 50%{transform:translateY(-8px)} } 
+  .orbit-ring { position: absolute; border-radius: 9999px; border: 1px solid; top: 50%; left: 50%; transform: translate(-50%,-50%); }
+  .orbit-ring-1 { width: 120px; height: 120px; border-color: rgba(255,0,204,0.35); animation: spinR 6s linear infinite; }
+  .orbit-ring-2 { width: 160px; height: 80px; border-color: rgba(170,0,255,0.2); animation: spinL 10s linear infinite; }
+  @keyframes spinR { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(360deg)} }
+  @keyframes spinL { from{transform:translate(-50%,-50%) rotate(0deg)} to{transform:translate(-50%,-50%) rotate(-360deg)} } 
+  .orbit-core { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); width: 64px; height: 64px; border-radius: 9999px; background: linear-gradient(135deg, rgba(255,0,204,0.3), rgba(170,0,255,0.3)); border: 1px solid rgba(255,0,204,0.45); box-shadow: 0 0 40px rgba(255,0,204,0.3), 0 0 80px rgba(170,0,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #ddd; } 
+  .title-main { font-size: clamp(3.5rem, 14vw, 5.5rem); font-weight: 900; letter-spacing: -0.02em; background: linear-gradient(135deg, #ff00cc, #aa00ff, #00eeff); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; line-height: 1; } 
+  .title-sub { font-size: 0.65rem; font-weight: 700; letter-spacing: 0.5em; color: #d060ff; text-transform: uppercase; margin: 0.4rem 0 0.75rem; } 
+  .tagline { color: rgba(255,255,255,0.45); font-size: 0.9rem; line-height: 1.6; margin-bottom: 2.5rem; text-align: center; }
+  .tagline span { color: rgba(255,255,255,0.25); } 
+  .btn-neon { display: inline-block; width: 100%; max-width: 280px; background: linear-gradient(135deg, #ff00cc, #aa00ff); border: none; color: #fff; font-weight: 700; letter-spacing: 0.07em; text-transform: uppercase; font-size: 0.75rem; padding: 0.85rem 2rem; border-radius: 9999px; cursor: pointer; box-shadow: 0 0 20px rgba(255,0,204,0.4), 0 4px 16px rgba(170,0,255,0.3); transition: all 0.2s; animation: pulseGlow 2s ease-in-out infinite; font-family: inherit; margin-bottom: 1rem; }
+  @keyframes pulseGlow { 0%,100%{box-shadow:0 0 20px rgba(255,0,204,0.4),0 4px 16px rgba(170,0,255,0.3)} 50%{box-shadow:0 0 35px rgba(255,0,204,0.7),0 6px 24px rgba(170,0,255,0.5),0 0 70px rgba(170,0,255,0.2)} }
+  .btn-neon:hover { transform: translateY(-2px) scale(1.02); }
+  .btn-neon:active { transform: scale(0.98); } 
+  .btn-ghost { display: inline-block; width: 100%; max-width: 280px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); font-size: 0.8rem; padding: 0.65rem 1.5rem; border-radius: 9999px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .btn-ghost:hover { background: rgba(255,255,255,0.1); color: #fff; border-color: rgba(255,255,255,0.2); } 
+  .tier-previews { display: flex; gap: 0.75rem; justify-content: center; margin-top: 2.5rem; flex-wrap: wrap; }
+  .tier-preview { display: flex; flex-direction: column; align-items: center; gap: 4px; background: rgba(255,255,255,0.02); padding: 0.5rem 0.75rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.05); }
+  .tier-preview-label { font-size: 0.58rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; }
+  .tier-selaras { color: var(--neon-green); }
+  .tier-external { color: #ffcc00; }
+  .tier-chaos { color: var(--neon-magenta); } 
+  .quiz-topbar { display: flex; align-items: center; justify-content: space-between; max-width: 520px; width: 100%; margin: 0 auto 1.5rem; }
+  .btn-back { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.55); font-size: 0.75rem; padding: 0.5rem 1rem; border-radius: 9999px; cursor: pointer; transition: all 0.2s; font-family: inherit; }
+  .btn-back:hover { background: rgba(255,255,255,0.1); color: #fff; }
+  .quiz-counter { font-family: monospace; font-size: 0.75rem; color: rgba(255,255,255,0.3); }
+  .quiz-brand { font-size: 0.75rem; font-weight: 800; color: #ff00cc; letter-spacing: 0.05em; }
+  .progress-track { width: 100%; max-width: 520px; margin: 0 auto 1.5rem; height: 4px; background: rgba(255,255,255,0.07); border-radius: 9999px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #ff00cc, #aa00ff, #00eeff); border-radius: 9999px; box-shadow: 0 0 8px rgba(255,0,204,0.6); width: 0%; transition: width 0.4s ease; }
+  .quiz-body { flex: 1; display: flex; flex-direction: column; justify-content: center; max-width: 520px; width: 100%; margin: 0 auto; }
+  .question-label { font-size: 0.6rem; font-weight: 700; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(208,96,255,0.6); margin-bottom: 0.5rem; }
+  .question-text { font-size: clamp(1.1rem, 4.5vw, 1.35rem); font-weight: 700; line-height: 1.4; color: #fff; margin-bottom: 1.5rem; }
+  .options-list { display: flex; flex-direction: column; gap: 0.75rem; }
+  .option-btn { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); color: rgba(255,255,255,0.8); font-size: 0.9rem; padding: 0.95rem 1.15rem; border-radius: 0.875rem; cursor: pointer; text-align: left; transition: all 0.2s; width: 100%; line-height: 1.4; font-family: inherit; }
+  .option-btn:hover { background: rgba(170,0,255,0.12); border-color: rgba(170,0,255,0.4); color: #fff; }
+  .option-letter { color: rgba(255,255,255,0.3); font-family: monospace; font-size: 0.75rem; margin-right: 0.5rem; } 
+  .result-card { max-width: 520px; width: 100%; margin: 0 auto; background: linear-gradient(135deg, rgba(20,5,45,0.9), rgba(10,2,25,0.95)); backdrop-filter: blur(32px); -webkit-backdrop-filter: blur(32px); border: 1px solid rgba(255,0,204,0.3); box-shadow: 0 0 0 1px rgba(170,0,255,0.1), 0 20px 60px rgba(170,0,255,0.3); border-radius: 2rem; padding: 2rem 1.5rem; opacity: 0; transform: translateY(32px); animation: slideUp 0.4s cubic-bezier(0.34,1.56,0.64,1) forwards; }
+  @keyframes slideUp { to{opacity:1;transform:translateY(0)} }
+  .result-emoji { text-align: center; font-size: 3.2rem; margin-bottom: 0.5rem; }
+  .result-badge-row { text-align: center; margin-bottom: 1.25rem; }
+  .badge-tier { display: inline-block; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.15em; text-transform: uppercase; padding: 0.4rem 1.2rem; border-radius: 9999px; }
+  .badge-selaras { background: rgba(0,255,136,0.15); border: 1px solid rgba(0,255,136,0.5); color: #00ff88; box-shadow: 0 0 16px rgba(0,255,136,0.3); }
+  .badge-external { background: rgba(255,200,0,0.15); border: 1px solid rgba(255,200,0,0.5); color: #ffcc00; box-shadow: 0 0 16px rgba(255,200,0,0.3); }
+  .badge-chaos { background: rgba(255,0,204,0.15); border: 1px solid rgba(255,0,204,0.5); color: #ff00cc; box-shadow: 0 0 16px rgba(255,0,204,0.3); }
+  .badge-void { background: rgba(0,238,255,0.15); border: 1px solid rgba(0,238,255,0.5); color: #00eeff; box-shadow: 0 0 16px rgba(0,238,255,0.3); }
+  .result-score-block { text-align: center; margin-bottom: 1.25rem; }
+  .result-score-label { font-size: 0.6rem; font-family: monospace; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.3); margin-bottom: 0.25rem; }
+  .result-score-num { font-size: 5rem; font-weight: 900; line-height: 1; }
+  .result-bar-wrap { margin-bottom: 1.25rem; }
+  .result-bar-track { width: 100%; height: 6px; background: rgba(255,255,255,0.07); border-radius: 9999px; overflow: hidden; }
+  .result-bar-fill { height: 100%; background: linear-gradient(90deg, #ff00cc, #aa00ff, #00eeff); border-radius: 9999px; width: 0%; transition: width 1s ease-out; }
+  .result-desc { font-size: 0.9rem; color: rgba(255,255,255,0.85); line-height: 1.6; text-align: center; margin-bottom: 1.25rem; }
+  .result-advice { background: rgba(255,255,255,0.03); border-radius: 0.875rem; padding: 1rem; font-size: 0.82rem; color: rgba(255,255,255,0.6); line-height: 1.5; text-align: center; margin-bottom: 1.5rem; }
+  .result-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+  @media(min-width:400px){ .result-actions { flex-direction: row; } }
+  .btn-green { flex: 1; background: linear-gradient(135deg, #00cc66, #00ff88); border: none; color: #050508; font-weight: 800; letter-spacing: 0.07em; text-transform: uppercase; font-size: 0.72rem; padding: 0.85rem 1.5rem; border-radius: 9999px; cursor: pointer; text-align: center; text-decoration: none; font-family: inherit; }
+  .rekab-container { max-width: 520px; width: 100%; margin: 0 auto; }
+  .rekab-info-grid { display: flex; justify-content: space-between; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05); padding: 0.75rem 1rem; border-radius: 0.75rem; font-size: 0.75rem; font-family: monospace; margin-bottom: 1.25rem; }
+  .rekab-info-grid span { color: var(--neon-cyan); font-weight: bold; }
+  .grid-options { display: grid; grid-template-columns: 1fr; gap: 0.55rem; margin-bottom: 1.25rem; }
+  .rekab-opt-btn { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 0.75rem; padding: 0.75rem 0.9rem; font-size: 0.82rem; color: rgba(255,255,255,0.8); text-align: left; cursor: pointer; font-family: inherit; transition: all 0.2s; }
+  .rekab-opt-btn:hover { border-color: var(--neon-purple); background: rgba(170,0,255,0.1); }
+  .rekab-opt-btn.active-pick { border-color: var(--neon-magenta); background: linear-gradient(135deg, rgba(255,0,204,0.15), rgba(170,0,255,0.15)); box-shadow: 0 0 10px rgba(255,0,204,0.2); }
+  .causality-box { background: rgba(255, 0, 204, 0.08); border: 1px dashed rgba(255, 0, 204, 0.3); padding: 1rem; border-radius: 0.75rem; font-size: 0.85rem; color: #ff99eb; line-height: 1.5; margin-bottom: 1.25rem; text-align: center; display: none; animation: slideUp 0.3s ease; }
+  #screen-history { max-width: 520px; width: 100%; margin: 0 auto; }
+  .history-header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 1.5rem; }
+  .history-title { font-size: 1.35rem; font-weight: 800; color: #fff; }
+  .history-list { display: flex; flex-direction: column; gap: 0.85rem; overflow-y: auto; max-height: 70vh; }
+  .history-item { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); padding: 1rem; border-radius: 1rem; display: flex; justify-content: space-between; align-items: center; }
+  .history-info { display: flex; flex-direction: column; gap: 4px; }
+  .history-tier-text { font-size: 0.85rem; font-weight: 700; }
+  .history-date { font-size: 0.7rem; color: rgba(255,255,255,0.4); }
+  .history-score { font-size: 1.35rem; font-weight: 900; color: var(--neon-cyan); }
+  .empty-history { text-align: center; color: rgba(255,255,255,0.3); font-size: 0.9rem; margin-top: 3rem; }
+</style>
+</head>
+<body> 
+<div class="grid-bg"></div>
+<div class="scan-line"></div> 
+<div id="screen-home" class="screen active">
+  <div class="orbit-wrapper">
+    <div class="orbit-ring orbit-ring-1"></div>
+    <div class="orbit-ring orbit-ring-2"></div>
+    <div class="orbit-core">🔮</div>
+  </div>
+  <h1 class="title-main">resona.</h1>
+  <div class="title-sub">v2 · Dialektika Peta Batin</div>
+  <p class="tagline">Skrining Frekuensi Akal, Hati, dan Nafsu Lo<br><span>10 pertanyaan awal · lanjut Rekayasa Batin (RekaB)</span></p>
+  <button class="btn-neon" onclick="startQuiz()">Mulai Scan Batin ➔</button>
+  <button class="btn-ghost" onclick="showHistory()">Lihat Sejarah Jiwa</button>
+  <div class="tier-previews">
+    <div class="tier-preview"><span class="tier-preview-label tier-selaras">SALIK / DRAW</span></div>
+    <div class="tier-preview"><span class="tier-preview-label tier-external">NOISE</span></div>
+    <div class="tier-preview"><span class="tier-preview-label tier-chaos">CHAOS / VOID</span></div>
+  </div>
+</div> 
+<div id="screen-quiz" class="screen">
+  <div class="quiz-topbar">
+    <button class="btn-back" onclick="goHome()">⬅ Keluar</button>
+    <div class="quiz-brand">resona.</div>
+    <div class="quiz-counter" id="quiz-counter">01 / 10</div>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill"></div>
+  </div>
+  <div class="quiz-body">
+    <div class="question-label">SKRINING AWAL</div>
+    <div class="question-text" id="question-text">Loading...</div>
+    <div class="options-list" id="options-list"></div>
+  </div>
+</div> 
+<div id="screen-rekab" class="screen">
+  <div class="quiz-topbar">
+    <div class="quiz-brand" style="color: var(--neon-green)">REKAB PROTOCOL</div>
+    <div class="quiz-counter" id="rekab-session-counter">SESI 1 / 3</div>
+  </div>
+  <div class="rekab-container">
+    <div class="rekab-info-grid">
+      <div>Kondisi: <span id="rekab-state">DRAW</span></div>
+      <div>Skor: <span id="rekab-score">50</span></div>
+    </div>
+    <div class="question-label" style="color: var(--neon-green)">PETA KAUSALITAS BATIN</div>
+    <div class="question-text" style="font-size: 1rem; margin-bottom: 0.75rem;">Pilih tepat 3 opsi tindakan terbuka untuk menyelaraskan jiwamu:</div>
+    <div id="causality-box" class="causality-box"></div>
+    <div class="grid-options" id="rekab-options-container"></div>
+    <div style="text-align: center;">
+      <button class="btn-neon" id="btn-submit-rekab" onclick="submitRekaB()" style="border-radius: 12px; max-width: 100%">Kunci 3 Pilihan Batin ➔</button>
+    </div>
+  </div>
+</div>
+<div id="screen-result" class="screen">
+  <div class="result-topbar" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; max-width: 520px; width: 100%; margin: 0 auto 1.5rem;">
+    <span class="quiz-brand">resona. · DIAGNOSA</span>
+    <button class="btn-back" onclick="goHome()">Selesai ✖</button>
+  </div>
+  <div class="result-card">
+    <div class="result-emoji" id="res-emoji">🧘</div>
+    <div class="result-badge-row">
+      <span class="badge-tier" id="res-badge">State</span>
+    </div>
+    <div class="result-score-block">
+      <div class="result-score-label">BATIN STABILITY SCORE</div>
+      <div class="result-score-num" id="res-score">0</div>
+    </div>
+    <div class="result-bar-wrap">
+      <div class="result-bar-track"><div class="result-bar-fill" id="res-bar"></div></div>
+    </div>
+    <p class="result-desc" id="res-desc">Description text...</p>
+    <div class="result-advice" id="res-advice">Advice text...</div>
+    <div class="result-actions">
+      <button class="btn-green" onclick="startQuiz()">Ulangi Perjalanan</button>
+      <button class="btn-ghost" onclick="goHome()">Menu Utama</button>
+    </div>
+  </div>
+</div> 
+<div id="screen-history" class="screen">
+  <div class="history-header">
+    <h2 class="history-title">Sejarah Jiwa</h2>
+    <button class="btn-back" onclick="goHome()">⬅ Kembali</button>
+  </div>
+  <div class="history-list" id="history-container"></div>
+</div> 
+<script>
+  const questions = [
+    { text: "Pas bangun tidur, apa yang pertama kali berkecamuk di kepala lo?", options: [{t:"Mulai menganalisis to-do list hari ini secara logis.",s:{a:2,h:0,n:0}},{t:"Merasakan getaran ketenangan/sesak di dada.",s:{a:0,h:2,n:0}},{t:"Pengen lanjut tidur, atau langsung cek sosmed nyari asupan dopamin.",s:{a:0,h:0,n:2}}] },
+    { text: "Gimana reaksi lo kalau tiba-tiba ada rencana penting yang dicancel mendadak?", options: [{t:"Mencari pembenaran rasional atau buru-buru bikin plan pengganti.",s:{a:2,h:0,n:0}},{t:"Merasa sedih, kecewa, atau hampa di dalam hati.",s:{a:0,h:2,n:0}},{t:"Ngamuk internal atau langsung meluapkan emosi pelarian.",s:{a:0,h:0,n:2}}] },
+    { text: "Berapa kali lo ngecek HP tanpa tujuan yang jelas dalam sejam terakhir?", options: [{t:"Jarang, cuma kalau perlu koordinasi logis kerjaan.",s:{a:1,h:0,n:0}},{t:"Nyari chat atau validasi emosional dari orang lain.",s:{a:0,h:2,n:0}},{t:"Refleks scrolling tiada henti, didorong rasa fomo akut.",s:{a:0,h:0,n:2}}] },
+    { text: "Saat denger kritik tajam atau omongan miring dari orang lain, batin lo...", options: [{t:"Langsung berdebat benar-salah di dalam kepala.",s:{a:2,h:0,n:0}},{t:"Batin kerasa sesak, minder, Extensi emosional.",s:{a:0,h:2,n:0}},{t:"Ego terluka, pengen nge-reog balik atau membalas dendam.",s:{a:0,h:0,n:2}}] },
+    { text: "Gimana kondisi fokus lo kalau lagi ngerjain sesuatu belakangan ini?", options: [{t:"Otak bercabang mikirin risiko dan strategi masa depan.",s:{a:2,h:0,n:0}},{t:"Gampang terdistraksi suasana hati yang gak menentu.",s:{a:0,h:2,n:0}},{t:"Gak tahan bosan, pengen cari selingan hiburan instan terus.",s:{a:0,h:0,n:2}}] },
+    { text: "Gimana pola tidur lo beberapa hari ke belakang?", options: [{t:"Susah merem karena otak overthinking terus-terusan.",s:{a:2,h:0,n:0}},{t:"Sering kebangun dengan perasaan cemas/gelisah.",s:{a:0,h:2,n:0}},{t:"Sengaja begadang demi kesenangan malam (balas dendam tidur).",s:{a:0,h:0,n:2}}] },
+    { text: "Saat melihat pencapaian orang lain di Instagram/TikTok, isi batin lo...", options: [{t:"Menimbang-nimbang kalkulasi matematis nasib diri.",s:{a:2,h:0,n:0}},{t:"Ada rasa sepi, minder, atau ngerasa hampa.",s:{a:0,h:2,n:0}},{t:"Anxiety kumat, iri batin karena ego pengen lebih unggul.",s:{a:0,h:0,n:2}}] },
+    { text: "Seberapa sering lo ngerasa capek fisik padahal aktivitas lo biasa aja?", options: [{t:"Capek karena kepala gak berhenti menganalisis data.",s:{a:2,h:0,n:0}},{t:"Energi batin habis kesedot drama emosional.",s:{a:0,h:2,n:0}},{t:"Letih karena menuruti keinginan instan dan nafsu badaniah.",s:{a:0,h:0,n:2}}] },
+    { text: "Gimana cara lo ngadepin emosi negatif (sedih/marah) yang datang?", options: [{t:"Mencari logika penyebabnya sampai pusing.",s:{a:2,h:0,n:0}},{t:"Merespons dengan keheningan, dzikir batin, atau merasakannya.",s:{a:0,h:2,n:0}},{t:"Memuaskan nafsu makan/belanja/katarsis marah untuk kabur.",s:{a:0,h:0,n:2}}] },
+    { text: "Saat ini, seberapa percaya lo kalau masa depan lo bakal baik-baik aja?", options: [{t:"Berharap pada kalkulasi rencana cadangan yang rigid.",s:{a:2,h:0,n:0}},{t:"Mencari ketenangan iman, berserah diri secara pasrah.",s:{a:0,h:2,n:0}},{t:"Skeptis, takut ego gak terpuaskan di masa depan.",s:{a:0,h:0,n:2}}] }
+  ];
+  const DAFTAR_OPSI = {
+    1: { t: "Menganalisis situasi secara radikal", a: 3, h: -1, n: -1 },
+    2: { t: "Mengikuti kata hati tanpa syarat", a: -1, h: 3, n: -1 },
+    3: { t: "Memuaskan keinginan sesaat agar tenang", a: -2, h: -2, n: 4 },
+    4: { t: "Mengisolasi diri dari keramaian (Uzlah)", a: 1, h: 1, n: -3 },
+    5: { t: "Mencari pembenaran logika atas tindakan", a: 3, h: -2, n: 1 },
+    6: { t: "Pasrah total tanpa mengambil tindakan", a: -2, h: 2, n: -2 },
+    7: { t: "Meluapkan emosi dalam bentuk katarsis", a: -3, h: -1, n: 4 },
+    8: { t: "Memperdebatkan benar-salah di dalam kepala", a: 4, h: -2, n: -1 },
+    9: { t: "Mencari kesibukan baru untuk pengalihan", a: 1, h: -1, n: 2 },
+    10: { t: "Merespons dengan keheningan dan dzikir batin", a: 2, h: 3, n: -3 },
+    11: { t: "Mengikuti arus lingkungan sekitar", a: -1, h: -1, n: 2 },
+    12: { t: "Menimbang risiko secara dingin dan kaku", a: 4, h: -3, n: -1 }
+  };
+  let currentIdx = 0, akal = 0, hati = 0, nafsu = 0, skor = 50, rekabSesi = 1, selectedRekaBPicks = [], catatanGame = [];
+  function changeScreen(screenId) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(screenId).classList.add('active'); window.scrollTo(0, 0); } 
+  function goHome() { changeScreen('screen-home'); } 
+  function startQuiz() { currentIdx = 0; akal = 0; hati = 0; nafsu = 0; skor = 50; rekabSesi = 1; catatanGame = []; changeScreen('screen-quiz'); showQuestion(); } 
+  function showQuestion() {
+    const q = questions[currentIdx];
+    document.getElementById('quiz-counter').innerText = `${String(currentIdx+1).padStart(2,'0')} / ${questions.length}`;
+    document.getElementById('question-text').innerText = q.text;
+    const fill = (currentIdx / questions.length) * 100;
+    document.getElementById('progress-fill').style.width = fill + '%'; 
+    const container = document.getElementById('options-list');
+    container.innerHTML = '';
+    q.options.forEach((opt, idx) => {
+      const letters = ['A', 'B', 'C'];
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.innerHTML = `<span class="option-letter">${letters[idx]}.</span> ${opt.t}`;
+      btn.onclick = () => selectOption(opt.s);
+      container.appendChild(btn);
+    });
+  } 
+  function selectOption(scores) {
+    akal += scores.a; hati += scores.h; nafsu += scores.n; currentIdx++;
+    if(currentIdx < questions.length) { showQuestion(); } else { document.getElementById('progress-fill').style.width = '100%'; setTimeout(startRekaBProtocol, 400); }
+  } 
+  function hitungAnomali(a, h, n) {
+    if (n >= 5 && a < 3) return "CHAOS";
+    if (a >= 5 && h < 3) return "NOISE";
+    if (a <= 0 && h <= 0) return "VOID";
+    return "DRAW";
+  }
+  function startRekaBProtocol() { rekabSesi = 1; changeScreen('screen-rekab'); updateRekaBInterface(); }
+  function updateRekaBInterface() {
+    const currentState = hitungAnomali(akal, hati, nafsu);
+    document.getElementById('rekab-session-counter').innerText = `SESI ${rekabSesi} / 3`;
+    document.getElementById('rekab-state').innerText = currentState;
+    document.getElementById('rekab-score').innerText = skor;
+    selectedRekaBPicks = [];
+    const container = document.getElementById('rekab-options-container');
+    container.innerHTML = '';
+    for (let id in DAFTAR_OPSI) {
+      const btn = document.createElement('button'); btn.className = 'rekab-opt-btn'; btn.id = `rekab-opt-${id}`; btn.innerText = `${id}. ${DAFTAR_OPSI[id].t}`; btn.onclick = () => toggleRekaBOption(parseInt(id)); container.appendChild(btn);
+    }
+    document.getElementById('btn-submit-rekab').style.display = 'inline-block';
+  }
+  function toggleRekaBOption(id) {
+    const idx = selectedRekaBPicks.indexOf(id);
+    if (idx > -1) { selectedRekaBPicks.splice(idx, 1); document.getElementById(`rekab-opt-${id}`).classList.remove('active-pick'); } else {
+      if (selectedRekaBPicks.length >= 3) { const first = selectedRekaBPicks.shift(); document.getElementById(`rekab-opt-${first}`).classList.remove('active-pick'); }
+      selectedRekaBPicks.push(id); document.getElementById(`rekab-opt-${id}`).classList.add('active-pick');
+    }
+  }
+  function submitRekaB() {
+    if (selectedRekaBPicks.length !== 3) { alert("Wajib memilih tepat 3 opsi tindakan batin!"); return; }
+    let namaPilihan = [];
+    selectedRekaBPicks.forEach(id => { akal += DAFTAR_OPSI[id].a; hati += DAFTAR_OPSI[id].h; nafsu += DAFTAR_OPSI[id].n; namaPilihan.push(DAFTAR_OPSI[id].t); });
+    const kondisiSaatIni = hitungAnomali(akal, hati, nafsu);
+    if (kondisiSaatIni === "DRAW") { skor += 15; } else if (kondisiSaatIni === "VOID") { skor -= 20; } else { skor -= 10; }
+    if (skor > 99) skor = 99; if (skor < 0) skor = 0;
+    const narasiKausalitas = `Pilihan '${namaPilihan[0]}', '${namaPilihan[1]}', dan '${namaPilihan[2]}' mengunci batin lo di titik: ${kondisiSaatIni}.`;
+    const cBox = document.getElementById('causality-box'); cBox.innerText = narasiKausalitas; cBox.style.display = 'block'; document.getElementById('btn-submit-rekab').style.display = 'none';
+    catatanGame.push({ sesi: rekabSesi, narasi: narasiKausalitas });
+    setTimeout(() => { cBox.style.display = 'none'; if (rekabSesi < 3) { rekabSesi++; updateRekaBInterface(); } else { showFinalResult(); } }, 4000); 
+  }
+  function showFinalResult() {
+    changeScreen('screen-result');
+    document.getElementById('res-score').innerText = skor;
+    document.getElementById('res-bar').style.width = (skor / 99) * 100 + '%'; 
+    const badge = document.getElementById('res-badge'), emoji = document.getElementById('res-emoji'), desc = document.getElementById('res-desc'), advice = document.getElementById('res-advice'); 
+    badge.className = 'badge-tier'; 
+    if (skor >= 90) {
+      emoji.innerText = '💎'; badge.innerText = 'SALIK (ALIGNED)'; badge.classList.add('badge-selaras');
+      desc.innerText = 'Keselarasan Mutlak! Akal jernih dibimbing Qalb (Hati) yang tenang, sementara Nafsu tunduk seimbang tanpa perang batin.';
+      advice.innerText = '"Pertahankan keheningan ini. Jaga batin dari intervensi noise luar."';
+    } else if (skor >= 65) {
+      emoji.innerText = '🧘'; badge.innerText = 'DRAW (DYNAMIC BALANCE)'; badge.classList.add('badge-selaras');
+      desc.innerText = 'Batin berada di area dialektika aktif yang produktif. Seimbang namun masih butuh stabilitas emosional.';
+      advice.innerText = '"Dikit lagi selaras. Kurangi perdebatan kaku di kepala, perkuat zikir batin."';
+    } else if (skor >= 35) {
+      emoji.innerText = '⚡'; badge.innerText = 'NOISE (AQL OVERLOAD)'; badge.classList.add('badge-external');
+      desc.innerText = 'Akal mendominasi terlalu keras hingga mengabaikan Hati. Lo terjebak dalam jebakan kognitif rigid dan overthinking.';
+      advice.innerText = '"Rem logika lo sejenak. Ambil waktu jeda (Uzlah) untuk mendengarkan radar Qalb."';
+    } else if (skor > 0) {
+      emoji.innerText = '🌪️'; badge.innerText = 'CHAOS (NAFS DOMINANT)'; badge.classList.add('badge-chaos');
+      desc.innerText = '⚠️ FREKUENSI GAWAT DARURAT! Nafsu (Impuls) mengambil alih kemudi hidup. Ego menuntut validasi instan.';
+      advice.innerText = '"Stop menuruti impuls pelarian. Jinakkan nafsu lewat keheningan radikal sekarang."';
+    } else {
+      emoji.innerText = '🕳️'; badge.innerText = 'VOID (EMPTY STATE)'; badge.classList.add('badge-void');
+      desc.innerText = 'Kekosongan mutlak. Akal blong, Hati mati rasa, Nafsu mati gaya. Kehilangan bahan bakar batin.';
+      advice.innerText = '"Rehat total dari apa pun. Isi ulang tangki jiwa dengan penyerahan diri (Tawakkal) penuh."';
+    }
+    const history = JSON.parse(localStorage.getItem('resona_v2_history') || '[]');
+    history.unshift({ score: skor, tier: badge.innerText, date: new Date().toLocaleString('id-ID', { dateStyle: 'short', timeStyle: 'short' }), details: catatanGame });
+    localStorage.setItem('resona_v2_history', JSON.stringify(history.slice(0, 10)));
+  } 
+  function showHistory() {
+    changeScreen('screen-history');
+    const container = document.getElementById('history-container'); container.innerHTML = '';
+    const history = JSON.parse(localStorage.getItem('resona_v2_history') || '[]');
+    if(history.length === 0) { container.innerHTML = '<div class="empty-history">Belum ada rekam jejak batin. Yuk scan dulu!</div>'; return; } 
+    history.forEach(item => {
+      const div = document.createElement('div'); div.className = 'history-item'; div.style.flexDirection = 'column'; div.style.alignItems = 'flex-start'; div.style.gap = '8px';
+      let detailLogs = '';
+      if(item.details) { item.details.forEach(l => { detailLogs += `<div style="font-size:0.7rem; color:rgba(255,255,255,0.5); margin-top:4px; border-left: 2px solid var(--neon-purple); padding-left:6px;">Sesi ${l.sesi}: ${l.narasi}</div>`; }); }
+      div.innerHTML = `<div style="display:flex; justify-content:space-between; width:100%; align-items:center;"><div class="history-info"><div class="history-tier-text">${item.tier}</div><div class="history-date">${item.date}</div></div><div class="history-score">${item.score}</div></div><div style="width:100%;">${detailLogs}</div>`;
+      container.appendChild(div);
+    });
+  }
+</script> 
+</body>
+</html>
